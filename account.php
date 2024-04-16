@@ -5,16 +5,22 @@ include_once 'includes/header.php';
 $currUserData = $user->getUserInfo();
 
 if(isset($_POST['updateUser'])){
-    $updateFeedbackMessage = $user->checkUserRegisterInput('0', '0@0.0', $_POST['old_u_pass'], $_POST['old_u_rep_pass']);
+    $updateFeedbackMessage = $user->checkUserInput($_POST['old_u_pass'], $_POST['old_u_rep_pass'], $currUserData['u_password']);
 
-    if($updateFeedbackMessage == "TRUE"){
-    $registerUser = $user->editUserInfo($_POST['uname'], $_POST['email'], $_POST['new_u_pass'], $currUserData['u_id']);
+    if($updateFeedbackMessage == TRUE){
+        $registerUser = $user->editUserInfo($_POST['uname'], $_POST['email'], $_POST['new_u_pass'], $currUserData['u_id']);
     }
     
     else{
-        foreach($updateFeedbackMessage as $row){
-            echo $row;
-        }
+        echo "ERROR";
+    }
+
+    if($registerUser == TRUE){
+        echo "Succesfully updated account data";
+    }
+
+    else{
+        echo "Error in updating your info";
     }
     
 }

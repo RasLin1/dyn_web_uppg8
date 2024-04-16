@@ -71,7 +71,7 @@ class User {
 
     //function that creates an account
     public function register(){
-        $regUserName = cleanInput($_POST['uname']);
+        $regUserName = $this->cleanInput($_POST['uname']);
         $regUserMail = $_POST['email'];
         //encrypts the password with password_hash()
         $encryptedPassword = password_hash($_POST['u_pass'], PASSWORD_DEFAULT);
@@ -166,19 +166,36 @@ class User {
 		return $userInfo;
 	}
 
+    public function checkUserInput($upass, $upassrep, $currupass){
+        if ($upass !== $upassrep){
+            return FALSE;
+        }
+
+        else{
+            $checkPasswordMatch = password_verify($upass, $currupass);
+        }
+
+        if($checkPasswordMatch == TRUE) {
+            return TRUE;
+       } 
+        elseif($checkPasswordMatch == FALSE) { 
+            return FALSE;
+        }
+    }
+
     public function editUserInfo($uname, $umail, $upass, $uid){
-        $regUserName = cleanInput($_POST['uname']);
+        $regUserName = $this->cleanInput($_POST['uname']);
         $regUserMail = $_POST['email'];
         //encrypts the password with password_hash()
-        $encryptedPassword = password_hash($_POST['u_pass'], PASSWORD_DEFAULT);
+        $encryptedPassword = password_hash($upass, PASSWORD_DEFAULT);
 
-        $stmt_registerUser = $this->pdo->prepare("UPDATE users(u_name, u_email, u_password, u_role_fk, u_status)values(:uname, :umail, :upass, 1, 1) WHERE u_id = $uid");
+        $stmt_registerUser = $this->pdo->prepare("UPDATE users SET u_name = :uname, u_email = :umail, u_password = :upass WHERE u_id = $uid");
         $stmt_registerUser->bindParam(":uname" ,$regUserName, PDO::PARAM_STR);
         $stmt_registerUser->bindParam(":umail" ,$regUserMail, PDO::PARAM_STR);
         $stmt_registerUser->bindParam(":upass" ,$encryptedPassword, PDO::PARAM_STR);
 
         if($stmt_registerUser->execute()){
-            header("Location: index.php?newuser=1");
+            return TRUE;
         }
         else{
             return "Something went wrong";
